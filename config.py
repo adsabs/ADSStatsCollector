@@ -1,8 +1,8 @@
 LOGGING_LEVEL = 'INFO'
 LOG_STDOUT = True
-SERVICE = 'ADSStatsCollector'
+SERVICE = 'stats_collector'
 
-PROMETHEUS_PUSHGATEWAY_INSTANCE = "ADSStatsCollector"
+PROMETHEUS_PUSHGATEWAY_INSTANCE = "stats_collector"
 PROMETHEUS_PUSHGATEWAY_URL = "http://localhost:9091"
 
 SOLR_URL = 'http://localhost:9983/solr/collection1/'

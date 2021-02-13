@@ -16,7 +16,7 @@ def compare(classic_bibcodes, db_bibcodes, solr_bibcodes):
     results = {}
     batch = {}
     now = datetime.utcnow()
-    prefix = "{}{}{}_{}{}".format(now.year, now.month, now.day, now.hour, now.minute)
+    prefix = "{:04}{:02}{:02}_{:02}{:02}".format(now.year, now.month, now.day, now.hour, now.minute)
 
     if len(classic_bibcodes) > 0:
         classic_bibcodes = set(classic_bibcodes)

@@ -29,6 +29,7 @@ def _push(job, payload_key, payload_value, provider="ADSStatsCollector", instanc
     data = _build_data(payload_key, payload_type, payload_description, payload_label, payload_value)
     if not simulate:
         r = requests.post(url, data=data, timeout=30)
+        #r = requests.delete(url, data=None, timeout=30)
         r.raise_for_status()
     else:
         logger.info("Push key '%s', job '%s', instance '%s', provider '%s' and value '%s'", payload_key, job, provider, instance, payload_value)
