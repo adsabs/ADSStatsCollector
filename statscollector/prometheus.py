@@ -32,7 +32,15 @@ def _push(job, payload_key, payload_value, provider="ADSStatsCollector", instanc
         #r = requests.delete(url, data=None, timeout=30)
         r.raise_for_status()
     else:
-        logger.info("Push key '%s', job '%s', instance '%s', provider '%s' and value '%s'", payload_key, job, provider, instance, payload_value)
+        logger.info("[SIMULATED] Push key '%s', job '%s', instance '%s', provider '%s' and value '%s'", payload_key, job, provider, instance, payload_value)
+
+
+def _is_number(string):
+    try:
+        float(string)
+        return True
+    except ValueError:
+        return False
 
 def push(payload_key, results, prefix=None, simulate=False):
     if prefix is None:
@@ -40,7 +48,7 @@ def push(payload_key, results, prefix=None, simulate=False):
     for k, v in results.items():
         if isinstance(v, dict):
             push(payload_key, v, prefix=prefix+[k], simulate=simulate)
-        else:
+        elif isinstance(v, (int, float)) or (isinstance(v, str) and _is_number(v)):
             job = "_".join(prefix+[k])
             payload_value = v
             try:

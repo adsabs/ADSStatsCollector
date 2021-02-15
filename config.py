@@ -37,6 +37,7 @@ GRAYLOG_CONTAINER_NAMES = (
 
 CLASSIC_CANONICAL_FILE = "/bibcodes.list.can"
 
+GOOGLE_DRIVE_KEEP_LAST_N_FOLDERS = 7
 # Please, follow the instructions in https://developers.google.com/drive/api/v3/quickstart/python to download the file 'credentials.json'
 GOOGLE_DRIVE_CREDENTIALS_FILENAME = "credentials.json"
 GOOGLE_DRIVE_TOKEN_FILENAME = "token.json"
