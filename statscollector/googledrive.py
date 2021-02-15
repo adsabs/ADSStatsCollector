@@ -12,19 +12,23 @@ from .setup import config, logger
 def verify_access():
     if os.path.exists(config.get('GOOGLE_DRIVE_CREDENTIALS_FILENAME')):
         # Setup the Drive v3 API
+        # - Create a project in https://console.developers.google.com/
+        # - Create a credential for the project (type OAuth 2.0 Client ID, application type: Desktop app)
+        # - Download the credentials and store them as 'credentials.json' in the app root folder
+        # - Run the verify access
         store = file.Storage(config.get('GOOGLE_DRIVE_TOKEN_FILENAME'))
         creds = store.get()
         if not creds or creds.invalid:
             message = "Please, authorize access to the Google Team Drive with your CfA account (your browser should open to do so)."
             logger.info(message)
-            scopes = 'https://www.googleapis.com/auth/drive'
+            #scopes = ['https://www.googleapis.com/auth/drive'] # View and manage files all your files
+            scopes = ['https://www.googleapis.com/auth/drive.file'] # View and manage files created with this app
             flow = client.flow_from_clientsecrets('credentials.json', scopes)
-            args = tools.argparser.parse_args()
-            args.noauth_local_webserver = True
+            args = tools.argparser.parse_args(args=['--noauth_local_webserver'])
             creds = tools.run_flow(flow, store, args)
         return creds
     else:
-        message = "Please, follow the instructions in https://developers.google.com/drive/api/v3/quickstart/python to download the file 'credentials.json'. Meanwhile files cannot be uploaded to Google Team Drive."
+        message = "No credentials file found. Please, follow the instructions in https://developers.google.com/drive/api/v3/quickstart/python to download the file 'credentials.json'. Meanwhile files cannot be uploaded to Google Team Drive."
         logger.error(message)
         return None
 
@@ -69,7 +73,7 @@ def _keep_only_last_n_folders(parent_folder_id, keep_last_n_folders, folder_name
 
 def _upload(parent_folder_id, file_name, file_path, mimetype='text/plain'):
     file_id = None
-    if os.path.exists(config.get('GOOGLE_DRIVE_CREDENTIALS_FILENAME')) and os.path.exists(config.get('GOOGLE_DRIVE_TOKEN_FILENAME')) and os.path.exists(file_path):
+    if os.path.exists(config.get('GOOGLE_DRIVE_TOKEN_FILENAME')) and os.path.exists(file_path):
         store = file.Storage(config.get('GOOGLE_DRIVE_TOKEN_FILENAME'))
         creds = store.get()
         try:
@@ -108,7 +112,7 @@ def _mkdir(parent_folder_id, folder_name, avoid_duplicate_name=False):
 
 def _true_mkdir(parent_folder_id, folder_name):
     folder_id = None
-    if os.path.exists(config.get('GOOGLE_DRIVE_CREDENTIALS_FILENAME')) and os.path.exists(config.get('GOOGLE_DRIVE_TOKEN_FILENAME')):
+    if os.path.exists(config.get('GOOGLE_DRIVE_TOKEN_FILENAME')):
         store = file.Storage(config.get('GOOGLE_DRIVE_TOKEN_FILENAME'))
         creds = store.get()
         try:
@@ -138,7 +142,7 @@ def _ls(folder_id, older_than=None, mimetype=None, order_by="modifiedTime"):
     :return a list of File resources
     """
     result = []
-    if os.path.exists(config.get('GOOGLE_DRIVE_CREDENTIALS_FILENAME')) and os.path.exists(config.get('GOOGLE_DRIVE_TOKEN_FILENAME')):
+    if os.path.exists(config.get('GOOGLE_DRIVE_TOKEN_FILENAME')):
         store = file.Storage(config.get('GOOGLE_DRIVE_TOKEN_FILENAME'))
         creds = store.get()
         try:
@@ -182,7 +186,7 @@ def _rm(file_or_directory_id):
     """
     Delete a file or directory from the Google Drive
     """
-    if os.path.exists(config.get('GOOGLE_DRIVE_CREDENTIALS_FILENAME')) and os.path.exists(config.get('GOOGLE_DRIVE_TOKEN_FILENAME')):
+    if os.path.exists(config.get('GOOGLE_DRIVE_TOKEN_FILENAME')):
         store = file.Storage(config.get('GOOGLE_DRIVE_TOKEN_FILENAME'))
         creds = store.get()
         try:
