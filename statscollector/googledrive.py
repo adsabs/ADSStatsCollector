@@ -15,7 +15,9 @@ def verify_access():
         # - Create a project in https://console.developers.google.com/
         # - Create a credential for the project (type OAuth 2.0 Client ID, application type: Desktop app)
         # - Download the credentials and store them as 'credentials.json' in the app root folder
-        # - Run the verify access
+        # - Run the verify access, which will make you go to an URL, allow the access and copy/paste a code
+        # - A token.json file will be created, this is used for all future interactions with Google API and
+        #   it only allows access to files/folders created by this app in Google Team Drive
         store = file.Storage(config.get('GOOGLE_DRIVE_TOKEN_FILENAME'))
         creds = store.get()
         if not creds or creds.invalid:
