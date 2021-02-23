@@ -63,7 +63,7 @@ def _upload_batch(parent_folder_id, batch):
 
 def _keep_only_last_n_folders(parent_folder_id, keep_last_n_folders, folder_name_regex="^\d{8}$"):
     # Keep only last N folders that match format YYYYMMDD (ignore if they do not match)
-    existing_folders = _ls(parent_folder_id, mimetype="application/vnd.google-apps.folder", order_by="modifiedTime") # oldest files at the end
+    existing_folders = _ls(parent_folder_id, mimetype="application/vnd.google-apps.folder", order_by="modifiedTime desc") # oldest files at the end
     n_keep = 0
     for existing_folder in existing_folders:
         if folder_name_regex and not re.match("^\d{8}$", existing_folder.get('name')):
@@ -79,9 +79,9 @@ def _upload(parent_folder_id, file_name, file_path, mimetype='text/plain'):
         store = file.Storage(config.get('GOOGLE_DRIVE_TOKEN_FILENAME'))
         creds = store.get()
         try:
-            drive_service = build('drive', 'v3', http=creds.authorize(Http()))
+            drive_service = build('drive', 'v3', http=creds.authorize(Http()), cache_discovery=False)
             body = {'name': file_name, 'mimeType': mimetype, 'parents': [parent_folder_id]}
-            created_file = drive_service.files().create(body=body, media_body=file_path, fields='id, parents', supportsTeamDrives=True).execute()
+            created_file = drive_service.files().create(body=body, media_body=file_path, media_mime_type=mimetype, fields='id, parents', supportsTeamDrives=True).execute()
             file_id = created_file['id']
             file_url = "https://drive.google.com/file/d/{}".format(file_id)
             folder_url = "https://drive.google.com/drive/u/1/folders/{}".format(parent_folder_id)
@@ -118,7 +118,7 @@ def _true_mkdir(parent_folder_id, folder_name):
         store = file.Storage(config.get('GOOGLE_DRIVE_TOKEN_FILENAME'))
         creds = store.get()
         try:
-            drive_service = build('drive', 'v3', http=creds.authorize(Http()))
+            drive_service = build('drive', 'v3', http=creds.authorize(Http()), cache_discovery=False)
             folder_id = config.get('GOOGLE_DRIVE_FOLDER_ID')
             file_metadata = {
                 'name': folder_name,
@@ -133,7 +133,7 @@ def _true_mkdir(parent_folder_id, folder_name):
     return folder_id
 
 
-def _ls(folder_id, older_than=None, mimetype=None, order_by="modifiedTime"):
+def _ls(folder_id, older_than=None, mimetype=None, order_by="modifiedTime desc"):
     """
     Retrieve a list of File resources.
 
@@ -148,7 +148,7 @@ def _ls(folder_id, older_than=None, mimetype=None, order_by="modifiedTime"):
         store = file.Storage(config.get('GOOGLE_DRIVE_TOKEN_FILENAME'))
         creds = store.get()
         try:
-            drive_service = build('drive', 'v3', http=creds.authorize(Http()))
+            drive_service = build('drive', 'v3', http=creds.authorize(Http()), cache_discovery=False)
             params = {
                 "q": "'" + folder_id + "' in parents and trashed=false",
                 "orderBy": order_by,
@@ -192,7 +192,7 @@ def _rm(file_or_directory_id):
         store = file.Storage(config.get('GOOGLE_DRIVE_TOKEN_FILENAME'))
         creds = store.get()
         try:
-            drive_service = build('drive', 'v3', http=creds.authorize(Http()))
+            drive_service = build('drive', 'v3', http=creds.authorize(Http()), cache_discovery=False)
             drive_service.files().delete(fileId=file_or_directory_id, supportsAllDrives=True).execute()
         except:
             logger.exception("File/directory '%s' failed to be deleted from Google Team Drive", file_or_directory_id)
