@@ -24,7 +24,7 @@ def _build_data(payload_key, payload_type, payload_description, payload_label, p
     data += '{payload_key}{payload_label} {payload_value}\n'.format(payload_key=payload_key, payload_label=payload_label, payload_value=payload_value)
     return data
 
-def _push(job, payload_key, payload_value, provider="ADSStatsCollector", instance=config.get('PROMETHEUS_PUSHGATEWAY_INSTANCE'), payload_type="untyped", payload_description=None, payload_label=None, simulate=False):
+def _push(job, payload_key, payload_value, provider=config.get('PROMETHEUS_PUSHGATEWAY_PROVIDER'), instance=config.get('PROMETHEUS_PUSHGATEWAY_INSTANCE'), payload_type="untyped", payload_description=None, payload_label=None, simulate=False):
     url = _build_url(job, provider, instance)
     data = _build_data(payload_key, payload_type, payload_description, payload_label, payload_value)
     if not simulate:

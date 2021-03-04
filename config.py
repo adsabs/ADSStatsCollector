@@ -1,7 +1,9 @@
 LOGGING_LEVEL = 'INFO'
 LOG_STDOUT = True
 SERVICE = 'stats_collector'
+ENVIRONMENT = 'ADSStatsCollector'
 
+PROMETHEUS_PUSHGATEWAY_PROVIDER = "ADSStatsCollector"
 PROMETHEUS_PUSHGATEWAY_INSTANCE = "stats_collector"
 PROMETHEUS_PUSHGATEWAY_URL = "http://localhost:9091"
 
