@@ -45,3 +45,8 @@ GOOGLE_DRIVE_CREDENTIALS_FILENAME = "credentials.json"
 GOOGLE_DRIVE_TOKEN_FILENAME = "token.json"
 # https://drive.google.com/drive/u/1/folders/ID
 GOOGLE_DRIVE_FOLDER_ID = "ID"
+
+SOURCES_DIR = "/sources"
+PDF_SOURCES_DIR = "/seri"
+STDDEV_CUTOFF = 1.5
+COUNT_ERR = 5
