@@ -4,8 +4,6 @@ import os
 import psycopg2
 from glob import glob
 from datetime import datetime
-from sqlalchemy.orm import sessionmaker, load_only
-from sqlalchemy import create_engine, text
 
 # ============================= INITIALIZATION ==================================== #
 from adsputils import setup_logging, load_config
