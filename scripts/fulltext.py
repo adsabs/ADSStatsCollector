@@ -55,14 +55,16 @@ def bibcode_monitoring(year, bibstems=None):
 
         with master_connection.cursor() as master_cursor:
             for bibstem in bibstems:
+                logger.debug('Checking bibcodes from year %s from bibstem %s', year, bibstem)
                 bibstem_year = str(year) + bibstem
+                fulltext_no_null = "(regexp_replace(fulltext::text, '\\\\u0000', '', 'g'))"
                 # for each bibstem, check if any have the fulltext field but are missing the body
                 no_body_query = """
-                SELECT bibcode FROM records WHERE bibcode LIKE '{0}%' AND NOT (fulltext::jsonb ? 'body');
-                """.format(bibstem_year)
-                logger.debug('Checking bibcodes from year %s from bibstem %s', year, bibstem)
+                SELECT bibcode FROM records 
+                WHERE bibcode LIKE '{0}%' AND fulltext IS NOT NULL AND NOT ({1}::jsonb ? 'body');
+                """.format(bibstem_year, fulltext_no_null)
                 master_cursor.execute(no_body_query)
-                for n in master_cursor:
+                for n in master_cursor.fetchall():
                     logger.info('Bibcode %s has extracted fulltext but no body was extracted.', n[0])
 
                 # for each bibstem, check the length of the extracted body against the average
@@ -70,22 +72,26 @@ def bibcode_monitoring(year, bibstems=None):
                 SELECT avg(length(fulltext)), 
                        stddev_samp(length(fulltext)) 
                 FROM records 
-                WHERE bibcode LIKE '{0}%' AND (fulltext::jsonb ? 'body');
-                """.format(bibstem_year)
+                WHERE bibcode LIKE '{0}%' AND ({1}::jsonb ? 'body');
+                """.format(bibstem_year, fulltext_no_null)
                 master_cursor.execute(stats_query)
                 avg, stddev = master_cursor.fetchone()
+                if not avg or not stddev:
+                    logger.debug('Bibstem %s has no (or only one) extracted fulltext body for year %s.', bibstem, year)
+                    continue
                 avg = float(avg)
                 stddev = float(stddev)
 
                 body_query = """
-                SELECT bibcode,  length(fulltext::jsonb->>'body') FROM records 
-                WHERE bibcode LIKE '{0}%' AND (fulltext::jsonb ? 'body');
-                """.format(bibstem_year)
+                SELECT bibcode,  length({1}::jsonb->>'body') FROM records 
+                WHERE bibcode LIKE '{0}%' AND ({1}::jsonb ? 'body');
+                """.format(bibstem_year, fulltext_no_null)
                 master_cursor.execute(body_query)
 
-                for bf in master_cursor:
+                for bf in master_cursor.fetchall():
                     if bf[1] < avg - (config.get('STDDEV_CUTOFF', 1.5) * stddev):
-                        logger.info('Bibcode %s has extracted fulltext but body is short compared to similar bibcodes', bf[0])
+                        logger.info('Bibcode %s has extracted fulltext but body (length: %s) is short compared '
+                                    'to similar bibcodes (avg: %s, stddev: %s)', bf[0], bf[1], avg, stddev)
     except:
         logger.exception("Failed retrieving stats from postgres")
     finally:
