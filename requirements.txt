@@ -1,5 +1,5 @@
 adsputils==1.2.8
 psycopg2-binary==2.8.6
-grapi==0.1.4
+git+https://github.com/interputed/grapi.git@8438be4da1ba7374e216449303beb50d41712f10
 google-api-python-client==1.7.4
 oauth2client==4.1.3
