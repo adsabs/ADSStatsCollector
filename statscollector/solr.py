@@ -22,7 +22,7 @@ def _index(solr_url):
     r.raise_for_status()
     j = r.json()
     details = j.get('details', {})
-    master = details.get('master', {})
+    leader = details.get('leader', {})
     size, unit = details.get('indexSize', "0 GB").split(maxsplit=1)
     if unit == "TB":
         size = float(size) * 1024
@@ -35,8 +35,8 @@ def _index(solr_url):
     elif unit == "bytes":
         size = float(size) / 1024 / 1024 / 1024
     results['index_size'] = float("{:.2f}".format(size))
-    results['version'] = master.get('replicableVersion')
-    results['generation'] = master.get('replicableGeneration')
+    results['version'] = leader.get('replicableVersion')
+    results['generation'] = leader.get('replicableGeneration')
     return results
 
 def _content(solr_url):
